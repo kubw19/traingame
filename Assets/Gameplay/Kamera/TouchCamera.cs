@@ -23,7 +23,7 @@ public class TouchCamera : MonoBehaviour {
 
     void Start()
     {
-        BoundsBox = GameObject.Find("floor").GetComponent<BoxCollider2D>();
+        BoundsBox = GameObject.Find("Background").GetComponent<BoxCollider2D>();
         MinBounds = BoundsBox.bounds.min;
         MaxBounds = BoundsBox.bounds.max;
 

@@ -4,23 +4,22 @@ using UnityEngine;
 
 public class Switch : MonoBehaviour {
 
-    private Material temp;
-    public waypoint toToggle;
+    private Material _tempMaterial;
+    public Waypoint toToggle;
    // Color32 On = new Color32();
    // Color32 Off = new Color32();
-    Color32 Temp;
-    Color32 Temp2;
+
     private void OnMouseDown()
     {
         if (toToggle.train == null /*&& GetComponentInParent<JunctionFail>().Damaged == false*/)
         {
             toToggle.Toggle(toToggle);
-            GameObject straight = this.transform.parent.transform.Find("straight").gameObject;
-            GameObject side = this.transform.parent.transform.Find("side").gameObject;
-            Temp = side.GetComponent<Renderer>().material.color;
-            Temp2 = straight.GetComponent<Renderer>().material.color;
-            straight.GetComponent<MeshRenderer>().material.color = Temp;
-            side.GetComponent<Renderer>().material.color = Temp2;
+            GameObject straight = this.transform.parent.transform.Find("StraightRail").gameObject;
+            GameObject side = this.transform.parent.transform.Find("SideRail").gameObject;
+            var _temp = side.GetComponent<Renderer>().material;
+            var _temp2 = straight.GetComponent<Renderer>().material;
+            straight.GetComponent<MeshRenderer>().material = _temp;
+            side.GetComponent<Renderer>().material = _temp2;
 
 
 

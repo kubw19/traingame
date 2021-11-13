@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 /*if (lastVisited.GetComponent<Peron>() != null && next == lastVisited.GetComponent<Peron>().nextPoint)
@@ -42,19 +43,19 @@ public partial class Train : MonoBehaviour, IPointerDownHandler
     public TrainRecord TrainRecord;
     public float realVelocity; //prędkość przemieszczania między punktami
     public Rekord rekord;
-    public waypoint startingPoint;
-    public waypoint endingPoint;
-    public waypoint next;
-    public waypoint lastVisited;
+    public Waypoint startingPoint;
+    public Waypoint endingPoint;
+    public Waypoint next;
+    public Waypoint lastVisited;
     private float Heading;              //pewnie będzie niepotrzebne
-    public waypoint toStop;
-    private waypoint tempToStop;
+    public Waypoint toStop;
+    private Waypoint tempToStop;
     private Vector3 trainPosition;
-    private waypoint krytyczny;
+    private Waypoint krytyczny;
     [HideInInspector] public float turnDist;
     [HideInInspector] public bool PlatformStand = false;
     [HideInInspector] public float timer = 0;
-    private waypoint temp1, temp2;
+    private Waypoint temp1, temp2;
     public bool Go = false;
     public  bool moveToStart = false;
     public float PlatTimer;
@@ -75,13 +76,13 @@ public partial class Train : MonoBehaviour, IPointerDownHandler
     Vector3 lvNext;
     public Car wagon;
     Vector3 trainAngle;
-    waypoint tempReverse;
+    Waypoint tempReverse;
     float clicked = 0;
     float clicktime = 0;
     float clickdelay = 0.5f;
     public bool TurningBack = false;
     float speedCorrection;
-    public List<waypoint> Path = new List<waypoint>();
+    public List<Waypoint> Path = new List<Waypoint>();
 
 
     public List<Vector3> LocomotivePositions = new List<Vector3>();
@@ -99,51 +100,54 @@ public partial class Train : MonoBehaviour, IPointerDownHandler
     }
     public void AssignNextPoint()
     {
-        if (next.ways[0] == lastVisited)
-        {
-            if (next.ways[1] != null)
-            {
-                lastVisited = next;
-                next = next.ways[1];
-            }
-        }
-        else if (next.ways[1] == lastVisited)
-        {
-            if (next.ways[0] != null)
-            {
-                lastVisited = next;
-                next = next.ways[0];
-            }
-        }
+        var origin = lastVisited;
+        lastVisited = next;
+        next = next.ways.ToList().FirstOrDefault(x => x != origin);
+        //if (next.ways[0] == lastVisited)
+        //{
+        //    if (next.ways[1] != null)
+        //    {
+        //        lastVisited = next;
+        //        next = next.ways[1];
+        //    }
+        //}
+        //else if (next.ways[1] == lastVisited)
+        //{
+        //    if (next.ways[0] != null)
+        //    {
+        //        lastVisited = next;
+        //        next = next.ways[0];
+        //    }
+        //}
 
 
 
-        else if (next.ways[1] != null)
-        {
-            if (next.ways[0] == lastVisited)
-            {
-                lastVisited = next;
-                next = next.ways[1];
-            }
-            else if (next.ways[1] == lastVisited)
-            {
-                lastVisited = next;
-                next = next.ways[0];
-            }
-        }
+        //else if (next.ways[1] != null)
+        //{
+        //    if (next.ways[0] == lastVisited)
+        //    {
+        //        lastVisited = next;
+        //        next = next.ways[1];
+        //    }
+        //    else if (next.ways[1] == lastVisited)
+        //    {
+        //        lastVisited = next;
+        //        next = next.ways[0];
+        //    }
+        //}
 
         Path.Add(next);
     }
     void JunctionCollisionCheck()
     {
-        if (next.ways[2] != null || lastVisited.ways[2] != null)
+        if (next.ways.Length > 2|| lastVisited.ways.Length > 2)
         {
-            if (next.ways[2] != null)
+            if (next.ways.Length > 2)
             {
 
                 temp1 = next;
             }
-            else if (lastVisited.ways[2] != null)
+            else if (lastVisited.ways.Length > 2)
             {
                 temp1 = lastVisited;
             }
@@ -161,16 +165,16 @@ public partial class Train : MonoBehaviour, IPointerDownHandler
             temp1.train = null;
         }
     }
-    public waypoint semafor;
+    public Waypoint semafor;
     void SemaforCollisionCheck()
     {
 
-        waypoint next2 = next;
-        waypoint LV = lastVisited;
+        Waypoint next2 = next;
+        Waypoint LV = lastVisited;
         if (startingPoint != null)
         {
             if (semafor != null && lastVisited == semafor) semafor.train = null;
-            while (next2.ways[0] != LV || next2.ways[1] != null)
+            while (next2.ways[0] != LV || next2.ways.Length > 1)
             {
                 if (LV == next2.ways[0])
                 {
@@ -184,7 +188,7 @@ public partial class Train : MonoBehaviour, IPointerDownHandler
                 }
 
                 //zatrzymanie przed semaforem
-                if (LV.GetComponent<Semafor>() != null || LV.GetComponent<Peron>() != null)
+                if (LV.GetComponent<Semaphore>() != null || LV.GetComponent<PlatformTrack>() != null)
                 {
 
                     semafor = LV;
@@ -244,7 +248,7 @@ public partial class Train : MonoBehaviour, IPointerDownHandler
     {
         //obliczanie dystansu do pkt zatrzymania
         if (toStop == null) stopDist = 999999999999999999;
-        else if ((next.GetComponent<Semafor>() != null || next.GetComponent<Peron>() != null)) stopDist = Vector2.Distance(this.transform.position, toStop.transform.position) - 0.45f; //żeby trafiać bardziej w  semafor
+        else if ((next.GetComponent<Semaphore>() != null || next.GetComponent<PlatformTrack>() != null)) stopDist = Vector2.Distance(this.transform.position, toStop.transform.position) - 0.45f; //żeby trafiać bardziej w  semafor
         else stopDist = Vector2.Distance(this.transform.position, toStop.transform.position) - 0.7f;
 
         //oblicznie dystnasu do kolejnego pkt
@@ -283,7 +287,7 @@ public partial class Train : MonoBehaviour, IPointerDownHandler
     {
         if (TrainRecord.ArrivalTime - TrainGame.Generator().clock < 180 && !Go) Status = "Waiting approval";
         else if (Go && velocity > 0) Status = "Moving";
-        else if (Go && moveToStart && distance < 0.5f && next.GetComponent<Peron>() != null && next.GetComponent<Peron>().nextPoint != lastVisited && velocity == 0) Status = "At platform " + UsedPlatform.ToString();
+        else if (Go && moveToStart && distance < 0.5f && next.GetComponent<PlatformTrack>() != null && next.GetComponent<PlatformTrack>().NextPoint != lastVisited && velocity == 0) Status = "At platform " + UsedPlatform.ToString();
         else if (Go && velocity == 0) Status = "Waiting";
 
     }
@@ -393,21 +397,21 @@ public partial class Train : MonoBehaviour, IPointerDownHandler
             if (trainPosition == next.transform.position)//ustawianie nexta i zmiana światła semaforu
             {
 
-                if (next.GetComponent<Peron>() == null || next.GetComponent<Peron>().nextPoint == lastVisited)
+                if (next.GetComponent<PlatformTrack>() == null || next.GetComponent<PlatformTrack>().NextPoint == lastVisited)
                 {
                     AssignNextPoint();
                 }
                 Heading = getHeading();
-                if (lastVisited.GetComponent<Semafor>() != null && next == lastVisited.GetComponent<Semafor>().NextWaypoint)
+                if (lastVisited.GetComponent<Semaphore>() != null && next == lastVisited.GetComponent<Semaphore>().NextWaypoint)
                 {
-                    lastVisited.GetComponent<Semafor>().Light.Toggle();
+                    lastVisited.GetComponent<Semaphore>().Light.Toggle();
                 }
             }
-            if (distance < 0.5f && next.GetComponent<Peron>() != null && next.GetComponent<Peron>().nextPoint != lastVisited && velocity == 0)
+            if (distance < 0.5f && next.GetComponent<PlatformTrack>() != null && next.GetComponent<PlatformTrack>().NextPoint != lastVisited && velocity == 0)
             {
                 if (!AssignedUsedPlatform)
                 {
-                    UsedPlatform = next.GetComponentInParent<PeronFolder>().PlatformId;
+                    UsedPlatform = next.GetComponentInParent<PlatformGroup>().PlatformId;
                     AssignedUsedPlatform = true;
                     if (UsedPlatform == TrainRecord.PrimePeron && UsedPlatform == TrainRecord.Peron)
                     {
@@ -442,7 +446,7 @@ public partial class Train : MonoBehaviour, IPointerDownHandler
                 if (!PlatformStand) timer += Time.deltaTime * gen.CompressionRate;
                 if (timer > 60 && transform.parent.transform.parent.gameObject.GetComponent<TrainsTime>().gen.clock / 60 >= TrainRecord.DepartureTime / 60) PlatformStand = true;
                 if (PlatformStand) timer = 0;
-                if (next.GetComponent<Peron>().Wait == false && PlatformStand  /* && Awaria == false && Choroba ==false*/)
+                if (next.GetComponent<PlatformTrack>().Wait == false && PlatformStand  /* && Awaria == false && Choroba ==false*/)
                 {
                     Departed = true;
                     DepartureHour = transform.parent.transform.parent.gameObject.GetComponent<TrainsTime>().gen.clock;
@@ -459,20 +463,20 @@ public partial class Train : MonoBehaviour, IPointerDownHandler
                     }
                 }
             }
-            if (lastVisited.GetComponent<Peron>() != null && lastVisited.GetComponent<Peron>().nextPoint == next && velocity != 0 && PlatTimer < 2f)
+            if (lastVisited.GetComponent<PlatformTrack>() != null && lastVisited.GetComponent<PlatformTrack>().NextPoint == next && velocity != 0 && PlatTimer < 2f)
             {
                 PlatTimer += Time.deltaTime * gen.CompressionRate;
                 if (PlatTimer > 1.5f)
                 {
 
-                    lastVisited.GetComponent<Peron>().Wait = true;
-                    lastVisited.GetComponent<Peron>().Light.SetRed();
+                    lastVisited.GetComponent<PlatformTrack>().Wait = true;
+                    lastVisited.GetComponent<PlatformTrack>().Light.SetRed();
                 }
             }
             DistancesCalculation();
             /*if (!TurningBack)*/ VelocityChange(); //to trzeba przemyśleć
             //else GoReverse(); wykomentowane cofanie pociagu
-            if (velocity == 0 && next.GetComponent<Peron>() == null && PlatformStand)
+            if (velocity == 0 && next.GetComponent<PlatformTrack>() == null && PlatformStand)
             {
                 HaltDelay += Time.deltaTime * gen.CompressionRate;
                 if (HaltDelay >= 120f)
@@ -484,7 +488,7 @@ public partial class Train : MonoBehaviour, IPointerDownHandler
             }
             if (trainPosition == next.transform.position && next.End) //Kiedy pociąg dojeżdza do końca mapy
             {
-                if (next.GetComponent<waypoint>().EndRight == false)
+                if (next.GetComponent<Waypoint>().EndRight == false)
                 {
                     gen.Points -= 15;
                     gen.AddScoreDialog(-15, "Train " + IDD + " left map via left track");
@@ -508,7 +512,7 @@ public partial class Train : MonoBehaviour, IPointerDownHandler
             {
                 DepartureHour = transform.parent.transform.parent.gameObject.GetComponent<TrainsTime>().gen.clock;
             }
-            if (velocity == 0 && toStop.GetComponent<Peron>() == null && toStop.GetComponent<Semafor>() == null && !JunctionStop)
+            if (velocity == 0 && toStop.GetComponent<PlatformTrack>() == null && toStop.GetComponent<Semaphore>() == null && !JunctionStop)
             {
                 gen.Points -= 3;
                 gen.AddScoreDialog(-3, "Incorrectly set junction for train " + IDD);

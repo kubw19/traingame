@@ -18,7 +18,7 @@ public class CompressionChange : MonoBehaviour, IPointerDownHandler
     {
         foreach (TrainRecord trainrecord in gener.ScheduledTrains)
         {
-            trainrecord.TrainUnit.velocity = trainrecord.TrainUnit.velocity;// * tempCompression;
+            trainrecord.TrainUnit.velocity *= tempCompression;// trainrecord.TrainUnit.velocity;// * tempCompression;
         }
     }
     public void OnPointerDown(PointerEventData eventData)

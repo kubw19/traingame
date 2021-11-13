@@ -1,14 +1,14 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
-[CustomEditor(typeof(waypoint))]
+[CustomEditor(typeof(Waypoint))]
 public class GlobalPosition : Editor
 {
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
 
-        waypoint obiekt = (waypoint)target;
+        Waypoint obiekt = (Waypoint)target;
         Vector3 pozycja = obiekt.transform.position;
         GUILayout.Label("Pozycja globalna: ");
         float x = EditorGUILayout.FloatField("x: ", pozycja.x);

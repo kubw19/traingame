@@ -6,16 +6,26 @@ using UnityEngine.EventSystems;
 
 public class ButtonClickSound : MonoBehaviour, IPointerDownHandler
 {
-    AudioSource sound;
+    AudioSource _sound;
     // Start is called before the first frame update
     void Start()
     {
-        sound = GameObject.Find("ButtonClickSound").GetComponent<AudioSource>();
-        DontDestroyOnLoad(GameObject.Find("Audio"));
+        if (!Application.isPlaying)
+        {
+            return;
+        }
+        _sound = GameObject.Find("ButtonClickSound")?.GetComponent<AudioSource>();
+        var audio = GameObject.Find("Audio");
+        if (audio != null)
+        {
+            DontDestroyOnLoad(audio);
+        }
     }
 
     public void OnPointerDown(PointerEventData data)
     {
-        sound.Play();
+        if (_sound is null)
+            return;
+        _sound.Play();
     }
 }

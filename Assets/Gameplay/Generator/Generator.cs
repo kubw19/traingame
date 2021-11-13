@@ -18,10 +18,10 @@ public class Generator : MonoBehaviour
     public List<TrainRecord> ScheduledTrains;
     public System.Random rand = new System.Random();
     public List<int> UsedId = new List<int>();
-    public PeronFolder[] Platforms;
+    public PlatformGroup[] Platforms { get; set; }
     public int CompressionRate=1;
     public bool Emergency = false;
-    public PeronFolder ChoosenPlatform;
+    public PlatformGroup ChoosenPlatform;
     public TrainRecord ChangingPlatTrain;
     public Text ChoosenPlatText;
     [HideInInspector]public int Points;
@@ -170,7 +170,7 @@ public class Generator : MonoBehaviour
         for (int i = Platforms.Length - 1; i > 0; i--)
         {
             int swapIndex = rand.Next(i + 1);
-            PeronFolder tmp = Platforms[i];
+            PlatformGroup tmp = Platforms[i];
             Platforms[i] = Platforms[swapIndex];
             Platforms[swapIndex] = tmp;
         }
@@ -228,6 +228,7 @@ public class Generator : MonoBehaviour
 
     private void Start()
     {
+        Platforms = FindObjectsOfType<PlatformGroup>();
         Destroy(GameObject.Find("AudioManager"));
         Time.timeScale = 1;
         LoadDataToLevel();

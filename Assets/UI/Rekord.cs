@@ -86,8 +86,12 @@ public class Rekord : MonoBehaviour {
                 TrainColorInfo = 3;
                 if (!playedDelay)
                 {
-                    GameObject.Find("DelayedSound").GetComponent<AudioSource>().Play();
-                    playedDelay = true;
+                    var sound = GameObject.Find("DelayedSound");
+                    if (sound)
+                    {
+                        sound.GetComponent<AudioSource>().Play();
+                        playedDelay = true;
+                    }
                 }
             }
 

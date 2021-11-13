@@ -2,16 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Linq;
 
-public class TrainRecord : MonoBehaviour {
+public class TrainRecord : MonoBehaviour
+{
     public int Id;
-    public int Peron;
+    public int? Peron;
     public int ArrivalTime;
     public int DepartureTime;
     public int ArrDelay;
     public int DepDelay;
-    public string StartingPoint;
-    public string EndingPoint;
     public Generator generator;
     [HideInInspector] public int TimetableBeg, TimetableEnd;
     public Train TrainUnit;
@@ -19,27 +19,34 @@ public class TrainRecord : MonoBehaviour {
     List<TrainRecord> ScheduledTrains;
     System.Random rand;
     List<int> UsedId;
-    PeronFolder[] Platforms;
-    public int PrimePeron;
+    PlatformGroup[] Platforms;
+    public int? PrimePeron;
     int RandDir;
+    private bool _startsFromLeft;
 
+
+    public string StartingPoint => TrainUnit.startingPoint.name;
+    public string EndingPoint => TrainUnit.endingPoint.name;
 
     bool HourDirectionConflict()
     {
-        foreach(TrainRecord Train in generator.ScheduledTrains)
+        foreach (TrainRecord Train in generator.ScheduledTrains)
         {
             if (Train.StartingPoint == StartingPoint && Math.Abs(Train.ArrivalTime - ArrivalTime) < 60) return true;
         }
         return false;
     }
 
-    PeronFolder FreePeronSlot()
+
+    private bool NonePlatformsAdded() => Platforms.Length == 0;
+
+    PlatformGroup FreePeronSlot()
     {
         bool conflict = false;
-        foreach (PeronFolder peron in Platforms)
+        foreach (PlatformGroup peron in Platforms)
         {
             conflict = false;
-            if(!peron.AvailableEnds.Contains(TrainUnit.startingPoint) || !peron.AvailableEnds.Contains(TrainUnit.endingPoint))
+            if (!peron.AvailableEnds.Contains(TrainUnit.startingPoint) || !peron.AvailableEnds.Contains(TrainUnit.endingPoint))
             {
                 conflict = true;
                 continue;
@@ -94,29 +101,32 @@ public class TrainRecord : MonoBehaviour {
 
     void AssignStartingPoint()
     {
+        var fromLeft = FindObjectsOfType<LeftEdgeWaypoint>().Where(x => x.CanTrainsBegin).Select(x => x as EdgeWaypoint).ToList();
+        var fromRight = FindObjectsOfType<RightEdgeWaypoint>().Where(x => x.CanTrainsBegin).Select(x => x as EdgeWaypoint).ToList();
         RandDir = rand.Next(0, 20000) % 2;
-        waypoint[] PKT = TrainUnit.GetComponentInParent<StartingPoints>().PunktyStartoweWest;
-        if (RandDir == 0) PKT = TrainUnit.GetComponentInParent<StartingPoints>().PunktyStartoweEast;
 
-        int SPAmount = PKT.Length;
-        int los = rand.Next(0, 20000) % SPAmount;
+        var points = fromRight;
+        _startsFromLeft = false;
+        if (RandDir == 0 && fromLeft.Count() > 0 || fromRight.Count() == 0)
+        {
+            _startsFromLeft = true;
+            points = fromLeft;
+        }
 
-        TrainUnit.startingPoint = PKT[los];
-        StartingPoint = TrainUnit.startingPoint.Name;
+        int startingPointsAmount = points.Count();
+        int selected = rand.Next(0, 20000) % startingPointsAmount;
+
+        TrainUnit.startingPoint = points.ElementAt(selected);
     }
 
     void AssignEndingPoint()
     {
-        waypoint[] PKT = TrainUnit.GetComponentInParent<StartingPoints>().PunktyKoncoweEast;
-        if (RandDir == 0) PKT = TrainUnit.GetComponentInParent<StartingPoints>().PunktyKoncoweWest;
+        var endPoints = (_startsFromLeft ? FindObjectsOfType<RightEdgeWaypoint>().Select(x => x as EdgeWaypoint) : FindObjectsOfType<LeftEdgeWaypoint>().Select(x => x as EdgeWaypoint)).Where(x => x.CanTrainsEnd).ToList();
 
-        int SPAmount = PKT.Length;
-        int los = rand.Next(0, 20000) % SPAmount;
+        int startingPointsCount = endPoints.Count();
+        int selected = rand.Next(0, 20000) % startingPointsCount;
 
-        while (PKT[los]==TrainUnit.startingPoint) los = rand.Next(0, 20000) % SPAmount;
-
-        TrainUnit.endingPoint = PKT[los];
-        EndingPoint = TrainUnit.endingPoint.Name;
+        TrainUnit.endingPoint = endPoints.ElementAt(selected);
     }
 
     void GenerateScheduleTime()
@@ -130,22 +140,22 @@ public class TrainRecord : MonoBehaviour {
         else if (los > 85 && los <= 95) TrainUnit.StopTime = 300f;
         else if (los > 95) TrainUnit.StopTime = 600f;
         DepartureTime = ArrivalTime + (int)TrainUnit.StopTime;
-        PeronFolder ChoosenPeron;
-        while ((ChoosenPeron = FreePeronSlot()) == null || HourDirectionConflict())
+
+        if (NonePlatformsAdded())
         {
-            ArrivalTime+=60;
-            DepartureTime+=60;
+            return;
         }
-        int i = 0;
-        foreach (PeronFolder platform in Platforms)
+        PlatformGroup chosenPlatform;
+        while ((chosenPlatform = FreePeronSlot()) == null || HourDirectionConflict())
         {
-            if (platform.PlatformId == ChoosenPeron.PlatformId) break;
-            i++;
+            ArrivalTime += 60;
+            DepartureTime += 60;
         }
-        Peron = ChoosenPeron.PlatformId;
+
+        Peron = chosenPlatform.PlatformId;
         PrimePeron = Peron;
-        Platforms[i].AssignedTrains.Add(this);
-       
+        chosenPlatform.AssignedTrains.Add(this);
+
 
     }
 

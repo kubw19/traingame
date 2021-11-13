@@ -6,8 +6,8 @@ public class Car : MonoBehaviour {
 
     public Train Locomotive;
     public Generator gener;
-    public waypoint NextWaypoint;
-    public waypoint LastVisited;
+    public Waypoint NextWaypoint;
+    public Waypoint LastVisited;
     Vector3 Offset = new Vector3(-0.45f,0,0);
     public bool CarMoveToStart = false;
     public float Distance;

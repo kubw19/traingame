@@ -6,19 +6,19 @@ using UnityEngine;
 public class MenuTrain : MonoBehaviour {
 
     System.Random Los = new System.Random();
-    public waypoint startingpoint;
-    waypoint Selected;
+    public Waypoint startingpoint;
+    Waypoint Selected;
 
     private void Start()
     {
-        var Waypointy = GameObject.FindObjectsOfType<waypoint>();
+        var waypoints = GameObject.FindObjectsOfType<Waypoint>();
 
-        Selected = Waypointy[Los.Next(0, 99000) % Waypointy.Length];
+        Selected = waypoints[Los.Next(0, 99000) % waypoints.Length];
         int iterator = 0;
-        while (Selected.End && Selected.ways[0].End && iterator<Waypointy.Length)
+        while (Selected.End && Selected.ways[0].End && iterator<waypoints.Length)
         {
             iterator++;
-            Selected = Waypointy[Los.Next(0, 99000) % Waypointy.Length];
+            Selected = waypoints[Los.Next(0, 99000) % waypoints.Length];
         }
 
         startingpoint = Selected;

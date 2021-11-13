@@ -15,23 +15,23 @@ public class TrackGenerating : MonoBehaviour {
     {
         foreach (Transform child in transform)
         {
-            child.GetComponent<waypoint>().TrackGenerated = false;
+            child.GetComponent<Waypoint>().TrackGenerated = false;
 
         }
     }
     void Start () {
 		foreach(Transform child in transform)
         {
-            if (!child.GetComponent<waypoint>().TrackGenerated)
+            if (!child.GetComponent<Waypoint>().TrackGenerated)
             {
-                child.GetComponent<waypoint>().TrackGenerated = true;
-                child.GetComponent<waypoint>().ways[0].TrackGenerated = true;
-                Katownik = child.GetComponent<waypoint>().ways[0].transform.position - child.transform.position;
+                child.GetComponent<Waypoint>().TrackGenerated = true;
+                child.GetComponent<Waypoint>().ways[0].TrackGenerated = true;
+                Katownik = child.GetComponent<Waypoint>().ways[0].transform.position - child.transform.position;
                 Angle = Vector3.Angle(WersorY, Katownik);
 
                 GameObject newTrack = Instantiate(Resources.Load("PREFABS/Tor/TorTemplate")) as GameObject;
                 newTrack.transform.SetParent(GameObject.Find("Tory").transform, false);
-                if (child.GetComponent<waypoint>().ways[0].transform.position.y < child.transform.position.y)
+                if (child.GetComponent<Waypoint>().ways[0].transform.position.y < child.transform.position.y)
                 {
                     newTrack.transform.Rotate(0, 0, -Angle);
                 }
@@ -39,22 +39,22 @@ public class TrackGenerating : MonoBehaviour {
 
                 newTrack.transform.position = child.transform.position + (Katownik / 2) + new Vector3(0, 0, 1);
                 temp = newTrack.transform.localScale;
-                temp.x = Vector2.Distance(child.transform.position, child.GetComponent<waypoint>().ways[0].transform.position);
+                temp.x = Vector2.Distance(child.transform.position, child.GetComponent<Waypoint>().ways[0].transform.position);
                 newTrack.transform.localScale = temp;
-                newTrack.name = child.name + "+" + child.GetComponent<waypoint>().ways[0].name;
+                newTrack.name = child.name + "+" + child.GetComponent<Waypoint>().ways[0].name;
 
 
 
 
-                if (child.GetComponent<waypoint>().ways[1] != null)
+                if (child.GetComponent<Waypoint>().ways[1] != null)
                 {
-                    child.GetComponent<waypoint>().ways[1].TrackGenerated = true;
-                    Katownik = child.GetComponent<waypoint>().ways[1].transform.position - child.transform.position;
+                    child.GetComponent<Waypoint>().ways[1].TrackGenerated = true;
+                    Katownik = child.GetComponent<Waypoint>().ways[1].transform.position - child.transform.position;
                     Angle = Vector3.Angle(WersorY, Katownik);
 
                     newTrack = Instantiate(Resources.Load("PREFABS/Tor/TorTemplate")) as GameObject;
                     newTrack.transform.SetParent(GameObject.Find("Tory").transform, false);
-                    if (child.GetComponent<waypoint>().ways[1].transform.position.y < child.transform.position.y)
+                    if (child.GetComponent<Waypoint>().ways[1].transform.position.y < child.transform.position.y)
                     {
                         newTrack.transform.Rotate(0, 0, -Angle);
                     }
@@ -62,9 +62,9 @@ public class TrackGenerating : MonoBehaviour {
 
                     newTrack.transform.position = child.transform.position + (Katownik / 2) + new Vector3(0, 0, 1);
                     temp = newTrack.transform.localScale;
-                    temp.x = Vector2.Distance(child.transform.position, child.GetComponent<waypoint>().ways[1].transform.position);
+                    temp.x = Vector2.Distance(child.transform.position, child.GetComponent<Waypoint>().ways[1].transform.position);
                     newTrack.transform.localScale = temp;
-                    newTrack.name = child.name + "+" + child.GetComponent<waypoint>().ways[1].name;
+                    newTrack.name = child.name + "+" + child.GetComponent<Waypoint>().ways[1].name;
                 }
             }
         }

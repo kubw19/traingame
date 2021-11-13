@@ -2,50 +2,55 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public partial class Train : MonoBehaviour {
+public partial class Train : MonoBehaviour
+{
 
     /*
      * Funkcja zwraca punkt , w którym pociąg powinien się zatrzymać
      * 
      * */
-    waypoint StopWP()
+    Waypoint StopWP()
     {
-        waypoint next2 = next;
-        waypoint LV = lastVisited;
+        Waypoint next2 = next;
+        Waypoint lastVisitedWP = lastVisited;
         if (startingPoint != null)
         {
-            while (next2.ways[0] != LV || next2.ways[1] != null)
+            while (next2.ways[0] != lastVisitedWP && (next2.ways.Length > 0))
             {
-                if (LV == next2.ways[0])
+                if (lastVisitedWP == next2.ways[0])
                 {
-                    LV = next2;
+                    lastVisitedWP = next2;
                     next2 = next2.ways[1];
                 }
-                else if (LV == next2.ways[1])
+                else if (lastVisitedWP == next2.ways[1])
                 {
-                    LV = next2;
+                    lastVisitedWP = next2;
                     next2 = next2.ways[0];
                 }
 
                 //zatrzymanie przed semaforem
-                if (LV.GetComponent<Semafor>() != null && next2==LV.GetComponent<Semafor>().NextWaypoint && LV.GetComponent<Semafor>().Stop)
+                if (lastVisitedWP.GetComponent<Semaphore>() != null && next2 == lastVisitedWP.GetComponent<Semaphore>().NextWaypoint && lastVisitedWP.GetComponent<Semaphore>().Stop)
                 {
-                    return LV;
+                    return lastVisitedWP;
                 }
 
                 //zatrzymanie na peronie
-                if (LV.GetComponent<Peron>() != null && next2 == LV.GetComponent<Peron>().nextPoint && LV.GetComponent<Peron>().Wait)
+                if (lastVisitedWP.GetComponent<PlatformTrack>() != null && next2 == lastVisitedWP.GetComponent<PlatformTrack>().NextPoint && lastVisitedWP.GetComponent<PlatformTrack>().Wait)
                 {
-                    return LV;
+                    return lastVisitedWP;
                 }
-                if (LV.GetComponent<Peron>() != null && next2 == LV.GetComponent<Peron>().nextPoint && GetComponent<Train>().PlatformStand==false)
+                if (lastVisitedWP.GetComponent<PlatformTrack>() != null && next2 == lastVisitedWP.GetComponent<PlatformTrack>().NextPoint && GetComponent<Train>().PlatformStand == false)
                 {
-                    return LV;
+                    return lastVisitedWP;
                 }
+
 
             }
         }
-        if (next2.End) return null;
-        else return next2;
+        if (next2.End)
+        {
+            return null;
+        }
+        else return null;//next2;
     }
 }
