@@ -15,17 +15,17 @@ public partial class Train : MonoBehaviour
         Waypoint lastVisitedWP = lastVisited;
         if (startingPoint != null)
         {
-            while (next2.ways[0] != lastVisitedWP && (next2.ways.Length > 0))
+            while (next2.Ways[0] != lastVisitedWP && (next2.Ways.Count > 0))
             {
-                if (lastVisitedWP == next2.ways[0])
+                if (lastVisitedWP == next2.Ways[0])
                 {
                     lastVisitedWP = next2;
-                    next2 = next2.ways[1];
+                    next2 = next2.Ways[1];
                 }
-                else if (lastVisitedWP == next2.ways[1])
+                else if (lastVisitedWP == next2.Ways[1])
                 {
                     lastVisitedWP = next2;
-                    next2 = next2.ways[0];
+                    next2 = next2.Ways[0];
                 }
 
                 //zatrzymanie przed semaforem

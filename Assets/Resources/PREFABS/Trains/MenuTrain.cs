@@ -15,7 +15,7 @@ public class MenuTrain : MonoBehaviour {
 
         Selected = waypoints[Los.Next(0, 99000) % waypoints.Length];
         int iterator = 0;
-        while (Selected.End && Selected.ways[0].End && iterator<waypoints.Length)
+        while (Selected.End && Selected.Ways[0].End && iterator<waypoints.Length)
         {
             iterator++;
             Selected = waypoints[Los.Next(0, 99000) % waypoints.Length];
@@ -23,18 +23,18 @@ public class MenuTrain : MonoBehaviour {
 
         startingpoint = Selected;
         Selected.End = true;
-        Selected.ways[0].End = true ;
+        Selected.Ways[0].End = true ;
         transform.position = startingpoint.transform.position;
     }
     private void Update()
     {
         if(startingpoint!=null)
-        transform.position = Vector3.MoveTowards(this.transform.position, startingpoint.ways[0].transform.position, Time.deltaTime*15);
+        transform.position = Vector3.MoveTowards(this.transform.position, startingpoint.Ways[0].transform.position, Time.deltaTime*15);
 
-        if (transform.position == startingpoint.ways[0].transform.position)
+        if (transform.position == startingpoint.Ways[0].transform.position)
         {
             Selected.End = false;
-            Selected.ways[0].End = false;
+            Selected.Ways[0].End = false;
 
             Destroy(gameObject);
         }

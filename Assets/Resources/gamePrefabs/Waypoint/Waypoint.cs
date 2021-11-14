@@ -3,26 +3,38 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+[ExecuteInEditMode]
+[System.Serializable]
 public class Waypoint : MonoBehaviour
 {
 
-    public Waypoint[] ways = new Waypoint[3];
+    public List<Waypoint> Ways;
     public bool End;
     public bool EndRight;
     public Train train;//zmienna do semaforu
     private Waypoint temp;
     public string Name;
+    public string ObjectName => this.name;
     public bool TrackGenerated = false;
     public bool IsPlatform = false;
 
+
+    public bool IsJunction => Ways.Where(x => x != null).Count() > 2;
+    public bool HasReachedRailsLimit => Ways.Where(x => x != null).Count() >= 2;
+
+    private void Awake()
+    {
+
+    }
+
     public Waypoint GetWay(int index)
     {
-        if(index + 1 > ways.Length)
+        if (index + 1 > Ways.Count())
         {
             return null;
         }
 
-        return ways[index];
+        return Ways[index];
     }
 
     public void setGlobalPosition(Vector3 pozycja)
@@ -38,17 +50,13 @@ public class Waypoint : MonoBehaviour
     {
         if (!transform.parent.GetComponent<JunctionFail>().Damaged)
         {
-            var currentWay = ways[1];
-            var newWay = ways[2];
-            ways[1] = newWay;
-            ways[2] = currentWay;
+            var currentWay = Ways[1];
+            var newWay = Ways[2];
+            Ways[1] = newWay;
+            Ways[2] = currentWay;
 
-            currentWay.ways = currentWay.ways.ToList().Where(x => x != junction).ToArray();
-
-            var newWayList = newWay.ways.ToList();
-            newWayList.Add(junction);
-
-            newWay.ways = newWayList.ToArray();
+            currentWay.Ways.Remove(junction);
+            newWay.Ways.Add(junction);
         }
     }
 
@@ -56,4 +64,6 @@ public class Waypoint : MonoBehaviour
     {
         CleanUpSemaphoreTrain();
     }
+
+
 }

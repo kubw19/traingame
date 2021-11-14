@@ -102,7 +102,7 @@ public partial class Train : MonoBehaviour, IPointerDownHandler
     {
         var origin = lastVisited;
         lastVisited = next;
-        next = next.ways.ToList().FirstOrDefault(x => x != origin);
+        next = next.Ways.ToList().FirstOrDefault(x => x != origin);
         //if (next.ways[0] == lastVisited)
         //{
         //    if (next.ways[1] != null)
@@ -140,14 +140,14 @@ public partial class Train : MonoBehaviour, IPointerDownHandler
     }
     void JunctionCollisionCheck()
     {
-        if (next.ways.Length > 2|| lastVisited.ways.Length > 2)
+        if (next.Ways.Count > 2|| lastVisited.Ways.Count > 2)
         {
-            if (next.ways.Length > 2)
+            if (next.Ways.Count > 2)
             {
 
                 temp1 = next;
             }
-            else if (lastVisited.ways.Length > 2)
+            else if (lastVisited.Ways.Count > 2)
             {
                 temp1 = lastVisited;
             }
@@ -174,17 +174,17 @@ public partial class Train : MonoBehaviour, IPointerDownHandler
         if (startingPoint != null)
         {
             if (semafor != null && lastVisited == semafor) semafor.train = null;
-            while (next2.ways[0] != LV || next2.ways.Length > 1)
+            while (next2.Ways[0] != LV || next2.Ways.Count > 1)
             {
-                if (LV == next2.ways[0])
+                if (LV == next2.Ways[0])
                 {
                     LV = next2;
-                    next2 = next2.ways[1];
+                    next2 = next2.Ways[1];
                 }
-                else if (LV == next2.ways[1])
+                else if (LV == next2.Ways[1])
                 {
                     LV = next2;
-                    next2 = next2.ways[0];
+                    next2 = next2.Ways[0];
                 }
 
                 //zatrzymanie przed semaforem
@@ -241,7 +241,7 @@ public partial class Train : MonoBehaviour, IPointerDownHandler
     {
         lastVisited = startingPoint;
         this.transform.position = startingPoint.transform.position;
-        next = startingPoint.ways[0];
+        next = startingPoint.Ways[0];
         Path.Add(next);
     }
     void DistancesCalculation()
