@@ -5,7 +5,7 @@ using UnityEngine;
 public class Switch : MonoBehaviour {
 
     private Material _tempMaterial;
-    public Waypoint toToggle;
+    public JunctionWaypoint toToggle;
    // Color32 On = new Color32();
    // Color32 Off = new Color32();
 
@@ -13,7 +13,7 @@ public class Switch : MonoBehaviour {
     {
         if (toToggle.train == null /*&& GetComponentInParent<JunctionFail>().Damaged == false*/)
         {
-            toToggle.Toggle(toToggle);
+            toToggle.Toggle();
             GameObject straight = this.transform.parent.transform.Find("StraightRail").gameObject;
             GameObject side = this.transform.parent.transform.Find("SideRail").gameObject;
             var _temp = side.GetComponent<Renderer>().material;

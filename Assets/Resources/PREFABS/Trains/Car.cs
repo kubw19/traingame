@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Assets.Extensions;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -45,6 +46,10 @@ public class Car : MonoBehaviour {
    
     void Update ()
     {
+        if (Locomotive.GetComponent<GameObject>().IsDestroyed())
+        {
+            Destroy(gameObject);
+        }
         carPosition = transform.position;
         if (CarMoveToStart)
         {

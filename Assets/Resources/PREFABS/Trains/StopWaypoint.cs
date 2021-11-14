@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public partial class Train : MonoBehaviour
@@ -9,48 +10,36 @@ public partial class Train : MonoBehaviour
      * Funkcja zwraca punkt , w którym pociąg powinien się zatrzymać
      * 
      * */
-    Waypoint StopWP()
+    Waypoint NextWaypointToStop()
     {
-        Waypoint next2 = next;
-        Waypoint lastVisitedWP = lastVisited;
+        Waypoint iterator = next;
+        List<Waypoint> visited = new List<Waypoint>() { lastVisited};
         if (startingPoint != null)
         {
-            while (next2.Ways[0] != lastVisitedWP && (next2.Ways.Count > 0))
+            while (!iterator.IsMapEdge)
             {
-                if (lastVisitedWP == next2.Ways[0])
-                {
-                    lastVisitedWP = next2;
-                    next2 = next2.Ways[1];
-                }
-                else if (lastVisitedWP == next2.Ways[1])
-                {
-                    lastVisitedWP = next2;
-                    next2 = next2.Ways[0];
-                }
-
                 //zatrzymanie przed semaforem
-                if (lastVisitedWP.GetComponent<Semaphore>() != null && next2 == lastVisitedWP.GetComponent<Semaphore>().NextWaypoint && lastVisitedWP.GetComponent<Semaphore>().Stop)
+                if (iterator.GetComponent<Semaphore>() != null && iterator == iterator.GetComponent<Semaphore>().NextWaypoint && iterator.GetComponent<Semaphore>().Stop)
                 {
-                    return lastVisitedWP;
+                    return iterator;
                 }
 
                 //zatrzymanie na peronie
-                if (lastVisitedWP.GetComponent<PlatformTrack>() != null && next2 == lastVisitedWP.GetComponent<PlatformTrack>().NextPoint && lastVisitedWP.GetComponent<PlatformTrack>().Wait)
+                if (iterator.GetComponent<PlatformTrack>() != null && iterator == iterator.GetComponent<PlatformTrack>().NextPoint && iterator.GetComponent<PlatformTrack>().Wait)
                 {
-                    return lastVisitedWP;
+                    return iterator;
                 }
-                if (lastVisitedWP.GetComponent<PlatformTrack>() != null && next2 == lastVisitedWP.GetComponent<PlatformTrack>().NextPoint && GetComponent<Train>().PlatformStand == false)
+                if (iterator.GetComponent<PlatformTrack>() != null && iterator == iterator.GetComponent<PlatformTrack>().NextPoint && GetComponent<Train>().PlatformStand == false)
                 {
-                    return lastVisitedWP;
+                    return iterator;
                 }
 
+                var possibleWays = new List<Waypoint> { iterator.Way1, iterator.Way2 };
+                visited.Add(iterator);
+                iterator = possibleWays.FirstOrDefault(x => !visited.Contains(x));
 
             }
         }
-        if (next2.End)
-        {
-            return null;
-        }
-        else return null;//next2;
+         return iterator.IsMapEdge ? null : iterator;
     }
 }

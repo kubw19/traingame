@@ -26,14 +26,10 @@ namespace Assets.Resources.SceneCreationUtils
         }
         public static void Generate(TracksGenerator generator)
         {
-            From.Ways.Add(To);
-            To.Ways.Add(From);
-
-            if (!From.Ways.Contains(To) && !To.Ways.Contains(From))
+            if (!From.CanGoTo(To) && !To.CanGoTo(From))
             {
-                To.Ways.Add(From);
-
-                From.Ways.Add(To);
+                From.AssignWay(To);
+                To.AssignWay(From);
             }
 
             generator.Generate(From, To);

@@ -102,7 +102,7 @@ public partial class Train : MonoBehaviour, IPointerDownHandler
     {
         var origin = lastVisited;
         lastVisited = next;
-        next = next.Ways.ToList().FirstOrDefault(x => x != origin);
+        next = next.Way1 == origin ? next.Way2 : next.Way1;
         //if (next.ways[0] == lastVisited)
         //{
         //    if (next.ways[1] != null)
@@ -140,14 +140,14 @@ public partial class Train : MonoBehaviour, IPointerDownHandler
     }
     void JunctionCollisionCheck()
     {
-        if (next.Ways.Count > 2|| lastVisited.Ways.Count > 2)
+        if (next.IsJunction| lastVisited.IsJunction)
         {
-            if (next.Ways.Count > 2)
+            if (next.IsJunction)
             {
 
                 temp1 = next;
             }
-            else if (lastVisited.Ways.Count > 2)
+            else if (lastVisited.IsJunction)
             {
                 temp1 = lastVisited;
             }
@@ -174,17 +174,17 @@ public partial class Train : MonoBehaviour, IPointerDownHandler
         if (startingPoint != null)
         {
             if (semafor != null && lastVisited == semafor) semafor.train = null;
-            while (next2.Ways[0] != LV || next2.Ways.Count > 1)
+            while (next2.Way1 != LV || next2.Way2 != null)
             {
-                if (LV == next2.Ways[0])
+                if (LV == next2.Way1)
                 {
                     LV = next2;
-                    next2 = next2.Ways[1];
+                    next2 = next2.Way2;
                 }
-                else if (LV == next2.Ways[1])
+                else if (LV == next2.Way2)
                 {
                     LV = next2;
-                    next2 = next2.Ways[0];
+                    next2 = next2.Way1;
                 }
 
                 //zatrzymanie przed semaforem
@@ -241,13 +241,13 @@ public partial class Train : MonoBehaviour, IPointerDownHandler
     {
         lastVisited = startingPoint;
         this.transform.position = startingPoint.transform.position;
-        next = startingPoint.Ways[0];
+        next = startingPoint.Way1;
         Path.Add(next);
     }
     void DistancesCalculation()
     {
         //obliczanie dystansu do pkt zatrzymania
-        if (toStop == null) stopDist = 999999999999999999;
+        if (toStop == null) stopDist = float.MaxValue;
         else if ((next.GetComponent<Semaphore>() != null || next.GetComponent<PlatformTrack>() != null)) stopDist = Vector2.Distance(this.transform.position, toStop.transform.position) - 0.45f; //żeby trafiać bardziej w  semafor
         else stopDist = Vector2.Distance(this.transform.position, toStop.transform.position) - 0.7f;
 
@@ -369,32 +369,29 @@ public partial class Train : MonoBehaviour, IPointerDownHandler
         }
         else if (startingPoint != null && Go && moveToStart)
         {
-            if (!wagon.CarMoveToStart)
-            {
-                distanceFromLV = Vector3.Distance(transform.position, lastVisited.transform.position);
-                if(distanceFromLV >=0.44) wagon.MoveToStart();
-            }
+
             krytyczny = CriticalAngle();
             trainPosition = this.transform.position;
-            toStop = StopWP();
-            trainAngle = wagon.transform.position - transform.position;
+            toStop = NextWaypointToStop();
+
+
             transform.rotation = Quaternion.FromToRotation(Vector3.right, trainAngle);
             if (gen.CompressionRate <= 5)
             {
                 realVelocity = Time.deltaTime * velocity * 1f;
-                speedCorrection = wagon.SpeedCorrection(wagon.Distance);
+                //speedCorrection = wagon.SpeedCorrection(wagon.Distance);
                 this.transform.position = Vector3.MoveTowards(this.transform.position, next.transform.position, realVelocity);
-                if (wagon.CarMoveToStart) wagon.MoveCart(realVelocity+speedCorrection);
+                //if (wagon.CarMoveToStart) wagon.MoveCart(realVelocity+speedCorrection);
             }
             else
             {
                 realVelocity = Time.deltaTime * velocity * 1f;
-                speedCorrection = wagon.SpeedCorrection(wagon.Distance);
+               // speedCorrection = wagon.SpeedCorrection(wagon.Distance);
                 this.transform.position = Vector3.MoveTowards(this.transform.position, next.transform.position, realVelocity);
-                if (wagon.CarMoveToStart) wagon.MoveCart(realVelocity+speedCorrection);
+                //if (wagon.CarMoveToStart) wagon.MoveCart(realVelocity+speedCorrection);
             }
 
-            if (trainPosition == next.transform.position)//ustawianie nexta i zmiana światła semaforu
+            if (trainPosition == next.transform.position && !next.IsMapEdge)//ustawianie nexta i zmiana światła semaforu
             {
 
                 if (next.GetComponent<PlatformTrack>() == null || next.GetComponent<PlatformTrack>().NextPoint == lastVisited)
@@ -407,62 +404,12 @@ public partial class Train : MonoBehaviour, IPointerDownHandler
                     lastVisited.GetComponent<Semaphore>().Light.Toggle();
                 }
             }
-            if (distance < 0.5f && next.GetComponent<PlatformTrack>() != null && next.GetComponent<PlatformTrack>().NextPoint != lastVisited && velocity == 0)
-            {
-                if (!AssignedUsedPlatform)
-                {
-                    UsedPlatform = next.GetComponentInParent<PlatformGroup>().PlatformId;
-                    AssignedUsedPlatform = true;
-                    if (UsedPlatform == TrainRecord.PrimePeron && UsedPlatform == TrainRecord.Peron)
-                    {
-                        gen.Points += 3;
-                        gen.AddScoreDialog(3, "Train " + IDD + " arrived at scheduled platform");
-                    }
-                    else if (UsedPlatform != TrainRecord.Peron)
-                    {
-                        gen.Points -= 2;
-                        gen.AddScoreDialog(-2, "Train " + IDD + " arrived at wrong platform");
-                    }
-                }
-                /* if (!EventRand && !gen.Emergency) Event();
-                 if (Awaria || Choroba ) Go = false;*/
-                Arrived = true;
 
-                if (!ArrivalPoints)
-                {
-                    ArrivalHour = transform.parent.transform.parent.gameObject.GetComponent<TrainsTime>().gen.clock;
-                    if (TrainRecord.ArrDelay <= 120)
-                    {
-                        gen.Points += 3;
-                        gen.AddScoreDialog(3, "Train "+IDD+" arrived on time");
-                    }
-                    else if (TrainRecord.ArrDelay > 120)
-                    {
-                        gen.Points -= TrainRecord.ArrDelay / 60 - 2;
-                        gen.AddScoreDialog(-(TrainRecord.ArrDelay / 60 - 2), "Train " + IDD + " arrived late");
-                    }
-                    ArrivalPoints = true;
-                }
-                if (!PlatformStand) timer += Time.deltaTime * gen.CompressionRate;
-                if (timer > 60 && transform.parent.transform.parent.gameObject.GetComponent<TrainsTime>().gen.clock / 60 >= TrainRecord.DepartureTime / 60) PlatformStand = true;
-                if (PlatformStand) timer = 0;
-                if (next.GetComponent<PlatformTrack>().Wait == false && PlatformStand  /* && Awaria == false && Choroba ==false*/)
-                {
-                    Departed = true;
-                    DepartureHour = transform.parent.transform.parent.gameObject.GetComponent<TrainsTime>().gen.clock;
-                    AssignNextPoint();
-                    if (TrainRecord.DepDelay > 120)
-                    {
-                        gen.Points -= TrainRecord.DepDelay / 60 - 2;
-                        gen.AddScoreDialog(-(TrainRecord.DepDelay / 60 - 2), "Train " + IDD + " departed delayed");
-                    }
-                    else
-                    {
-                        gen.Points += 3;
-                        gen.AddScoreDialog(3, "Train " + IDD + " departed on time");
-                    }
-                }
+            if (TrainHasArrived())
+            {
+                PerformArrivalActions();
             }
+
             if (lastVisited.GetComponent<PlatformTrack>() != null && lastVisited.GetComponent<PlatformTrack>().NextPoint == next && velocity != 0 && PlatTimer < 2f)
             {
                 PlatTimer += Time.deltaTime * gen.CompressionRate;
@@ -486,20 +433,9 @@ public partial class Train : MonoBehaviour, IPointerDownHandler
                     gen.AddScoreDialog(-1, "Train " + IDD + " has been waiting 2 minutes");
                 }
             }
-            if (trainPosition == next.transform.position && next.End) //Kiedy pociąg dojeżdza do końca mapy
+            if (TrainArrivedToMapEnd()) //Kiedy pociąg dojeżdza do końca mapy
             {
-                if (next.GetComponent<Waypoint>().EndRight == false)
-                {
-                    gen.Points -= 15;
-                    gen.AddScoreDialog(-15, "Train " + IDD + " left map via left track");
-                }
-                Destroy(rekord.gameObject);
-                RekordONChange.ResetNumber();
-                gen.ScheduledTrains.Remove(TrainRecord);
-                gen.ToFocusOn--;
-                gen.RemaningTrains--;
-                if (gen.RemaningTrains == 0) gen.GameOver(3);
-                Destroy(gameObject);
+                FinalArrivalActions();
             }
 
             JunctionCollisionCheck();
@@ -512,7 +448,7 @@ public partial class Train : MonoBehaviour, IPointerDownHandler
             {
                 DepartureHour = transform.parent.transform.parent.gameObject.GetComponent<TrainsTime>().gen.clock;
             }
-            if (velocity == 0 && toStop.GetComponent<PlatformTrack>() == null && toStop.GetComponent<Semaphore>() == null && !JunctionStop)
+            if (velocity == 0 && toStop.GetComponent<PlatformTrack>() == null && !(toStop is Semaphore) && !JunctionStop)
             {
                 gen.Points -= 3;
                 gen.AddScoreDialog(-3, "Incorrectly set junction for train " + IDD);
@@ -560,5 +496,90 @@ public partial class Train : MonoBehaviour, IPointerDownHandler
              }
          }*/
 
+    }
+
+    private bool TrainHasArrived()
+    {
+        return distance < 0.5f && next.GetComponent<PlatformTrack>() != null && next.GetComponent<PlatformTrack>().NextPoint != lastVisited && velocity == 0;
+    }
+
+    private bool TrainArrivedToMapEnd()
+    {
+        return trainPosition == next.transform.position && next.IsMapEdge;
+    }
+
+    private void FinalArrivalActions()
+    {
+        if (next.GetComponent<EdgeWaypoint>().IsMapEndForRightRailTrack == false)
+        {
+            gen.Points -= 15;
+            gen.AddScoreDialog(-15, "Train " + IDD + " left map via left track");
+        }
+
+        Destroy(rekord.gameObject);
+        RekordONChange.ResetNumber();
+        gen.ScheduledTrains.Remove(TrainRecord);
+        gen.ToFocusOn--;
+        gen.RemaningTrains--;
+        if (gen.RemaningTrains == 0) gen.GameOver(3);
+        Destroy(gameObject);
+    }
+
+    private void PerformArrivalActions()
+    {
+        Arrived = true;
+        if (!AssignedUsedPlatform)
+        {
+            UsedPlatform = next.GetComponentInParent<PlatformGroup>().PlatformId;
+            AssignedUsedPlatform = true;
+            if (UsedPlatform == TrainRecord.PrimePeron && UsedPlatform == TrainRecord.Peron)
+            {
+                gen.Points += 3;
+                gen.AddScoreDialog(3, "Train " + IDD + " arrived at scheduled platform");
+            }
+            else if (UsedPlatform != TrainRecord.Peron)
+            {
+                gen.Points -= 2;
+                gen.AddScoreDialog(-2, "Train " + IDD + " arrived at wrong platform");
+            }
+        }
+        /* if (!EventRand && !gen.Emergency) Event();
+         if (Awaria || Choroba ) Go = false;*/
+
+
+        if (!ArrivalPoints)
+        {
+            ArrivalHour = transform.parent.transform.parent.gameObject.GetComponent<TrainsTime>().gen.clock;
+            if (TrainRecord.ArrDelay <= 120)
+            {
+                gen.Points += 3;
+                gen.AddScoreDialog(3, "Train " + IDD + " arrived on time");
+            }
+            else if (TrainRecord.ArrDelay > 120)
+            {
+                gen.Points -= TrainRecord.ArrDelay / 60 - 2;
+                gen.AddScoreDialog(-(TrainRecord.ArrDelay / 60 - 2), "Train " + IDD + " arrived late");
+            }
+            ArrivalPoints = true;
+        }
+        if (!PlatformStand) timer += Time.deltaTime * gen.CompressionRate;
+        if (timer > 60 && transform.parent.transform.parent.gameObject.GetComponent<TrainsTime>().gen.clock / 60 >= TrainRecord.DepartureTime / 60) PlatformStand = true;
+        if (PlatformStand) timer = 0;
+        if (next.GetComponent<PlatformTrack>().Wait == false && PlatformStand  /* && Awaria == false && Choroba ==false*/)
+        {
+            Departed = true;
+            DepartureHour = transform.parent.transform.parent.gameObject.GetComponent<TrainsTime>().gen.clock;
+            AssignNextPoint();
+            if (TrainRecord.DepDelay > 120)
+            {
+                gen.Points -= TrainRecord.DepDelay / 60 - 2;
+                gen.AddScoreDialog(-(TrainRecord.DepDelay / 60 - 2), "Train " + IDD + " departed delayed");
+            }
+            else
+            {
+                gen.Points += 3;
+                gen.AddScoreDialog(3, "Train " + IDD + " departed on time");
+            }
+        }
     }
 }

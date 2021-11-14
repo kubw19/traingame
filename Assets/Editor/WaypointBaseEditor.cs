@@ -16,11 +16,12 @@ public class WaypointBaseEditor
 
         obiekt.setGlobalPosition(new Vector3(x, y, z));
 
-        if (!obiekt.HasReachedRailsLimit)
+        if (obiekt.Way1 == null || obiekt.Way2 == null)
         {
             if (GUILayout.Button("Add to route"))
             {
                 RouteBuilderHelper.AddWaypoint(obiekt);
+                EditorWindow.GetWindow(typeof(RouteEditor)).Repaint();
             }
         }
         else

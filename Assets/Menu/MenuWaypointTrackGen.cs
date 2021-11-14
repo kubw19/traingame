@@ -13,7 +13,7 @@ public class MenuWaypointTrackGen : MonoBehaviour {
     {
         if (!GameObject.Find(this.name + "Track"))
         {
-            Katownik = GetComponent<Waypoint>().Ways[0].transform.position - transform.position;
+            Katownik = GetComponent<Waypoint>().Way1.transform.position - transform.position;
             Angle = Vector3.Angle(WersorY, Katownik);
 
             GameObject newTrack = Instantiate(Resources.Load("PREFABS/MenuTrack")) as GameObject;

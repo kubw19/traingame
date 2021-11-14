@@ -1,5 +1,24 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &1986424724215373127
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7563912620029341068}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1432cdb15c8aa6d43b3db95e0cef7e25, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Way1: {fileID: 7019196150192575588}
+  Way2: {fileID: 4706400176928711130}
+  train: {fileID: 0}
+  Name: 
+  TrackGenerated: 0
+  IsPlatform: 0
+  AltWay: {fileID: 7641066779771554667}
 --- !u!1 &8752815079682635640
 GameObject:
   m_ObjectHideFlags: 0
@@ -159,7 +178,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba6f0b629b6b38c4584c21b0802fced4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  toToggle: {fileID: 2521758925255117920}
+  toToggle: {fileID: 0}
 --- !u!1001 &960678103863375662
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -409,26 +428,21 @@ PrefabInstance:
       propertyPath: m_Name
       value: CTR
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 1676138450505173251, guid: d9cbf945a9235844680e410d0352f043, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: d9cbf945a9235844680e410d0352f043, type: 3}
+--- !u!1 &7563912620029341068 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6720966139046652143, guid: d9cbf945a9235844680e410d0352f043,
+    type: 3}
+  m_PrefabInstance: {fileID: 3872463924171146595}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &7563912620029341069 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6720966139046652142, guid: d9cbf945a9235844680e410d0352f043,
     type: 3}
   m_PrefabInstance: {fileID: 3872463924171146595}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2521758925255117920 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1676138450505173251, guid: d9cbf945a9235844680e410d0352f043,
-    type: 3}
-  m_PrefabInstance: {fileID: 3872463924171146595}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 05afa3e5b668d5240815e9b7e94728ac, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &6202205506721278169
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -450,12 +464,17 @@ PrefabInstance:
         type: 3}
       propertyPath: ways.Array.data[0]
       value: 
-      objectReference: {fileID: 2521758925255117920}
+      objectReference: {fileID: 0}
     - target: {fileID: 1676138450505173251, guid: d9cbf945a9235844680e410d0352f043,
         type: 3}
       propertyPath: Ways.Array.data[0]
       value: 
-      objectReference: {fileID: 2521758925255117920}
+      objectReference: {fileID: 0}
+    - target: {fileID: 1676138450505173251, guid: d9cbf945a9235844680e410d0352f043,
+        type: 3}
+      propertyPath: Way1
+      value: 
+      objectReference: {fileID: 1986424724215373127}
     - target: {fileID: 6720966139046652142, guid: d9cbf945a9235844680e410d0352f043,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -557,7 +576,7 @@ PrefabInstance:
         type: 3}
       propertyPath: ways.Array.data[0]
       value: 
-      objectReference: {fileID: 2521758925255117920}
+      objectReference: {fileID: 0}
     - target: {fileID: 1676138450505173251, guid: d9cbf945a9235844680e410d0352f043,
         type: 3}
       propertyPath: ways.Array.data[1]
@@ -567,7 +586,12 @@ PrefabInstance:
         type: 3}
       propertyPath: Ways.Array.data[0]
       value: 
-      objectReference: {fileID: 2521758925255117920}
+      objectReference: {fileID: 0}
+    - target: {fileID: 1676138450505173251, guid: d9cbf945a9235844680e410d0352f043,
+        type: 3}
+      propertyPath: Way1
+      value: 
+      objectReference: {fileID: 1986424724215373127}
     - target: {fileID: 6720966139046652142, guid: d9cbf945a9235844680e410d0352f043,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -740,12 +764,17 @@ PrefabInstance:
         type: 3}
       propertyPath: ways.Array.data[0]
       value: 
-      objectReference: {fileID: 2521758925255117920}
+      objectReference: {fileID: 0}
     - target: {fileID: 1676138450505173251, guid: d9cbf945a9235844680e410d0352f043,
         type: 3}
       propertyPath: Ways.Array.data[0]
       value: 
-      objectReference: {fileID: 2521758925255117920}
+      objectReference: {fileID: 0}
+    - target: {fileID: 1676138450505173251, guid: d9cbf945a9235844680e410d0352f043,
+        type: 3}
+      propertyPath: Way1
+      value: 
+      objectReference: {fileID: 1986424724215373127}
     - target: {fileID: 6720966139046652142, guid: d9cbf945a9235844680e410d0352f043,
         type: 3}
       propertyPath: m_LocalPosition.x

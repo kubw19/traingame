@@ -59,9 +59,7 @@ public class RouteEditor : EditorWindow
         //{
         //    generator.Generate();
         //}
-        bool x = EditorGUILayout.Toggle("Enable route builder", WaypointClickCube.IsBuilderModeOn);
 
-        WaypointClickCube.IsBuilderModeOn = x;
     }
 
     void GuiLine(int i_height = 1)

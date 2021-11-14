@@ -15,26 +15,26 @@ public class MenuTrain : MonoBehaviour {
 
         Selected = waypoints[Los.Next(0, 99000) % waypoints.Length];
         int iterator = 0;
-        while (Selected.End && Selected.Ways[0].End && iterator<waypoints.Length)
+        while (Selected.IsMapEdge && Selected.Way1.IsMapEdge && iterator<waypoints.Length)
         {
             iterator++;
             Selected = waypoints[Los.Next(0, 99000) % waypoints.Length];
         }
 
         startingpoint = Selected;
-        Selected.End = true;
-        Selected.Ways[0].End = true ;
+        //Selected.IsMapEdge = true;
+        //Selected.Ways[0].IsMapEdge = true ;
         transform.position = startingpoint.transform.position;
     }
     private void Update()
     {
         if(startingpoint!=null)
-        transform.position = Vector3.MoveTowards(this.transform.position, startingpoint.Ways[0].transform.position, Time.deltaTime*15);
+        transform.position = Vector3.MoveTowards(this.transform.position, startingpoint.Way1.transform.position, Time.deltaTime*15);
 
-        if (transform.position == startingpoint.Ways[0].transform.position)
+        if (transform.position == startingpoint.Way1.transform.position)
         {
-            Selected.End = false;
-            Selected.Ways[0].End = false;
+            //Selected.IsMapEdge = false;
+            //Selected.Ways[0].IsMapEdge = false;
 
             Destroy(gameObject);
         }

@@ -13,8 +13,8 @@ public class RailScriptEditor : Editor
         if (Event.current.commandName == "SoftDelete")
         {
             var rail = (RailScript)target;
-            rail.To.Ways.Remove(rail.From);
-            rail.From.Ways.Remove(rail.To);
+            rail.To.UnnasignWay(rail.From);
+            rail.From.UnnasignWay(rail.To);
         }
     }
 }

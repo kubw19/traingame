@@ -8,9 +8,8 @@ using UnityEngine;
 public class Waypoint : MonoBehaviour
 {
 
-    public List<Waypoint> Ways;
-    public bool End;
-    public bool EndRight;
+    public Waypoint Way1;
+    public Waypoint Way2;
     public Train train;//zmienna do semaforu
     private Waypoint temp;
     public string Name;
@@ -19,22 +18,39 @@ public class Waypoint : MonoBehaviour
     public bool IsPlatform = false;
 
 
-    public bool IsJunction => Ways.Where(x => x != null).Count() > 2;
-    public bool HasReachedRailsLimit => Ways.Where(x => x != null).Count() >= 2;
+    public bool IsJunction => this is JunctionWaypoint;
+    public bool IsMapEdge => this is EdgeWaypoint;
 
     private void Awake()
     {
 
     }
 
-    public Waypoint GetWay(int index)
+    public void AssignWay(Waypoint way)
     {
-        if (index + 1 > Ways.Count())
+        if (Way1 == null)
         {
-            return null;
+            Way1 = way;
+            return;
         }
+        Way2 = way;
+    }
 
-        return Ways[index];
+    public void UnnasignWay(Waypoint way)
+    {
+        if (Way1 == way)
+        {
+            Way1 = null;
+        }
+        if (Way2 == way)
+        {
+            Way2 = null;
+        }
+    }
+
+    public bool CanGoTo(Waypoint waypoint)
+    {
+        return Way1 == waypoint || Way2 == waypoint;
     }
 
     public void setGlobalPosition(Vector3 pozycja)
@@ -46,19 +62,6 @@ public class Waypoint : MonoBehaviour
         if (train != null && train.semafor != this) train = null;
     }
 
-    public void Toggle(Waypoint junction)
-    {
-        if (!transform.parent.GetComponent<JunctionFail>().Damaged)
-        {
-            var currentWay = Ways[1];
-            var newWay = Ways[2];
-            Ways[1] = newWay;
-            Ways[2] = currentWay;
-
-            currentWay.Ways.Remove(junction);
-            newWay.Ways.Add(junction);
-        }
-    }
 
     private void FixedUpdate()
     {

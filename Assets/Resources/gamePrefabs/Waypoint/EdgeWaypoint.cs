@@ -6,7 +6,7 @@ public class EdgeWaypoint : Waypoint
 {
     public bool CanTrainsBegin;
     public bool CanTrainsEnd;
-
+    public bool IsMapEndForRightRailTrack;
     public EdgeWaypoint()
     {
 
